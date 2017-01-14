@@ -66,6 +66,14 @@ public final class QueryUtils {
     }
 
     public static String makeHttpRequest(URL url) throws IOException {
+        /* testing
+       try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        */
+
         String jsonResponse = "";
 
         if (url == null) {

@@ -1,6 +1,9 @@
 package com.example.android.quakereport;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -11,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -22,6 +26,8 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
     public static final String TEST_URL="http://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time&minmag=5&limit=10";
     private ListView earthquakeListView;
     private TextView mEmptyStateTextView;
+    private ProgressBar mProgressbar;
+
     private EarthquakeAdapter mAdapter;
     private static final int EARTHQUAKE_LOADER_ID = 1;
 
@@ -53,8 +59,24 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
         mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
         earthquakeListView.setEmptyView(mEmptyStateTextView);
 
-        LoaderManager loaderManager = getSupportLoaderManager();
-        loaderManager.initLoader(EARTHQUAKE_LOADER_ID, null, this);
+        mProgressbar= (ProgressBar) findViewById(R.id.loading_spinner);
+
+        if(checkInternet()){
+            LoaderManager loaderManager = getSupportLoaderManager();
+            loaderManager.initLoader(EARTHQUAKE_LOADER_ID, null, this);
+        }else{
+            mProgressbar.setVisibility(View.GONE);
+            mEmptyStateTextView.setText(R.string.no_connection);
+        }
+
+    }
+
+    private boolean checkInternet() {
+        ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     @Override
@@ -67,8 +89,10 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
         mAdapter.clear();
         mEmptyStateTextView.setText(R.string.no_earthquakes);
 
+
         if (data != null && !data.isEmpty()) {
             mAdapter.addAll(data);
+            mProgressbar.setVisibility(View.GONE);
         }
     }
 

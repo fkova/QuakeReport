@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
     public static final String LOG_TAG = EarthquakeActivity.class.getName();
     public static final String TEST_URL="http://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time&minmag=5&limit=10";
     private ListView earthquakeListView;
+    private TextView mEmptyStateTextView;
     private EarthquakeAdapter mAdapter;
     private static final int EARTHQUAKE_LOADER_ID = 1;
 
@@ -41,11 +43,15 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Earthquake currentEarthquake = mAdapter.getItem(position);
+                assert currentEarthquake != null;
                 Uri earthquakeUri = Uri.parse(currentEarthquake.getUrl());
                 Intent websiteIntent = new Intent(Intent.ACTION_VIEW, earthquakeUri);
                 startActivity(websiteIntent);
             }
         });
+
+        mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
+        earthquakeListView.setEmptyView(mEmptyStateTextView);
 
         LoaderManager loaderManager = getSupportLoaderManager();
         loaderManager.initLoader(EARTHQUAKE_LOADER_ID, null, this);
@@ -59,6 +65,7 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
     @Override
     public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> data) {
         mAdapter.clear();
+        mEmptyStateTextView.setText(R.string.no_earthquakes);
 
         if (data != null && !data.isEmpty()) {
             mAdapter.addAll(data);

@@ -36,7 +36,7 @@ public class EarthquakeLoader extends AsyncTaskLoader<List<Earthquake>> {
 
         try {
             jsonResponse = QueryUtils.makeHttpRequest(url);
-            Log.d(LOG_TAG,jsonResponse);
+            //Log.d(LOG_TAG,jsonResponse);
         } catch (IOException e) {
             e.printStackTrace();
         }
